@@ -2,8 +2,8 @@ package sig;
 
 public class Block{
     BlockState state;
-    double x,y;
-    public Block() {
+    int x,y; //Relative to its block clump.
+    public Block(int x,int y) {
         
     }
 }

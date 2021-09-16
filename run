@@ -1,2 +1,3 @@
 javac src/sig/*.java -d bin
 java -cp bin sig/Meteo
+jar cfe Meteo_Engine.jar sig.Meteo src/sig
