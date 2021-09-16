@@ -1,3 +1,5 @@
-javac src/sig/*.java -d bin
+javac --release 8 src/sig/*.java -d bin
+cd bin
+jar cfe ../Meteo_Engine.jar sig.Meteo sig
+cd ..
 java -cp bin sig/Meteo
-jar cfe Meteo_Engine.jar sig.Meteo src/sig
