@@ -1,8 +1,78 @@
 package sig;
 
+import javax.swing.JFrame;
+
 public class Meteo {
+    public final static int SCREEN_WIDTH=640;
+    public final static int SCREEN_HEIGHT=640;
+    public static long FRAMECOUNT=0;
+    public static JFrame f;
+    public static Board b;
+
+    public final static long TIMEPERTICK = 16666667l;
+
+    public static void runGameLoop() {
+        FRAMECOUNT++;
+    }
+
     public static void main(String[] args) {
         double[] val = {0,0,};
-        Board b = new Board(8,14,0.05,1,4,1,val);
+        b = new Board(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,16,16,8,14,0.05,1,4,1,val);
+
+        JFrame f = new JFrame("Meteo Engine");
+        Panel p = new Panel();
+
+        new Thread() {
+            public void run(){
+                while (true) {
+                    long startTime = System.nanoTime();
+                    p.repaint();
+                    long endTime = System.nanoTime();
+                    long diff = endTime-startTime;
+                    if (diff>TIMEPERTICK) { //Took longer than 1/60th of a second. No sleep.
+                        System.err.println("Frame Drawing took longer than "+TIMEPERTICK+"ns to calculate ("+diff+"ns total)!");
+                    } else {
+                        try {
+                            long sleepTime = TIMEPERTICK - diff;
+                            long millis = (sleepTime)/1000000;
+                            int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
+                            //System.out.println("FRAME DRAWING: Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
+                            Thread.sleep(millis,nanos);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }.start();
+
+        new Thread() {
+            public void run(){
+                while (true) {
+                    long startTime = System.nanoTime();
+                    runGameLoop();
+                    long endTime = System.nanoTime();
+                    long diff = endTime-startTime;
+                    if (diff>TIMEPERTICK) { //Took longer than 1/60th of a second. No sleep.
+                        System.err.println("Main Game Loop took longer than "+TIMEPERTICK+"ns to calculate ("+diff+"ns total)!");
+                    } else {
+                        try {
+                            long sleepTime = TIMEPERTICK - diff;
+                            long millis = (sleepTime)/1000000;
+                            int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
+                            //System.out.println("Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
+                            Thread.sleep(millis,nanos);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }.start();
+
+        f.add(p);
+        f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setVisible(true);
     }
 }
