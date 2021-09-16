@@ -1,0 +1,2 @@
+javac src/sig/*.java -d bin
+java -cp bin sig/Meteo
