@@ -6,6 +6,8 @@ public class Meteo {
     public final static int SCREEN_WIDTH=640;
     public final static int SCREEN_HEIGHT=640;
     public static long FRAMECOUNT=0;
+    public static double DRAWTIME=0;
+    public static double GAMELOOPTIME=0;
     public static JFrame f;
     public static Board b;
 
@@ -37,6 +39,7 @@ public class Meteo {
                             long millis = (sleepTime)/1000000;
                             int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
                             //System.out.println("FRAME DRAWING: Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
+                            DRAWTIME = (double)diff/1000000;
                             Thread.sleep(millis,nanos);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -61,6 +64,8 @@ public class Meteo {
                             long millis = (sleepTime)/1000000;
                             int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
                             //System.out.println("Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
+                            GAMELOOPTIME = (double)diff/1000000;
+                            f.setTitle("Game Loop: "+GAMELOOPTIME+"ms, Draw: "+DRAWTIME+"ms");
                             Thread.sleep(millis,nanos);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
