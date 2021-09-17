@@ -1,5 +1,6 @@
 package sig;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,15 @@ public class Board {
         }
 
         BlockClump defaultClump = new BlockClump(initialBlocks,0,0,0);
-        System.out.println(defaultClump);
+
+        blockData.add(defaultClump);
+    }
+    public void drawBoard(Graphics g) {
+        final int DRAW_STARTX = (int)(x - block_width*((double)width/2));
+        final int DRAW_STARTY = (int)(y + block_height*((double)height/2));
+
+        for (BlockClump bc : blockData) {
+            bc.drawBlocks(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height);
+        }
     }
 }

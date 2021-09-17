@@ -11,6 +11,6 @@ public class Panel extends JPanel{
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawString(Long.toString(Meteo.FRAMECOUNT),0,16);
+        Meteo.b.drawBoard(g);
     }
 }
