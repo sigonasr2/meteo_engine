@@ -23,6 +23,6 @@ public class Block{
     }
     public void draw(Graphics g, double x, double y, int block_width, int block_height) {
         g.setColor(state.getCol());
-        g.fill3DRect((int)x+this.x*block_width,(int)y+this.y*block_height, block_width, block_height, true);
+        g.fill3DRect((int)x+this.x*block_width,(int)y-this.y*block_height, block_width, block_height, true);
     }
 }

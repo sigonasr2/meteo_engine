@@ -1,6 +1,7 @@
 package sig;
 
 import java.awt.Graphics;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,9 +45,12 @@ public class Board {
     public void drawBoard(Graphics g) {
         final int DRAW_STARTX = (int)(x - block_width*((double)width/2));
         final int DRAW_STARTY = (int)(y + block_height*((double)height/2));
+        final int DRAW_ENDX = (int)(x + block_width*((double)width/2));
 
         for (BlockClump bc : blockData) {
             bc.drawBlocks(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height);
         }
+        g.setColor(Color.BLACK);
+        g.fillRoundRect(DRAW_STARTX, DRAW_STARTY+block_height, DRAW_ENDX-DRAW_STARTX, 3, 3, 1);
     }
 }

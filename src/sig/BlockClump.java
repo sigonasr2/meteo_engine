@@ -19,7 +19,7 @@ public class BlockClump {
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
         for (Block b : blocks) {
-            b.draw(g,originX-x*block_width,originY-y*block_height,block_width,block_height);
+            b.draw(g,originX+x*block_width,originY-y*block_height,block_width,block_height);
         }
     }
 }
