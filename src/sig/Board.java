@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Board {
     List<BlockClump> blockData;
@@ -18,6 +19,10 @@ public class Board {
     int x,y;
     int block_width,block_height;
     double vspeed;
+	
+	List<BlockClump> blockClumpDeleteList = new ArrayList<BlockClump>();
+	List<BlockClump> blockClumpAddList = new ArrayList<BlockClump>();
+	
     public Board(int centerX,int centerY,int block_width,int block_height,int boardWidth, int boardHeight, double gravity, double launch_power, double max_rise_spd, double max_fall_spd,
             double[] combo_power_bonus) {
         this.x=centerX;
@@ -54,7 +59,6 @@ public class Board {
         blockData.add(defaultClump2);
     }
     public void run(long frames) {
-    	
     	if (frames%100==0) {
     		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width));
     	}
@@ -91,13 +95,36 @@ public class Board {
             }
 	        //System.out.println(blocks.y);
         }
+    	if (blockClumpDeleteList.size()>0) {
+    		blockData.removeAll(blockClumpDeleteList);
+    		blockClumpDeleteList.clear();
+    	}
+    	if (blockClumpAddList.size()>0) {
+    		blockData.addAll(blockClumpAddList);
+    		blockClumpAddList.clear();
+    	}
     }
 	private void HandleBlockLand(BlockClump blocks, int x, double yset) {
 		blocks.yspd=0;
 		blocks.y=yset;
-		
+		if (blocks.launched--==-1) {
+			SplitBlockClump(blocks);
+		}
 	}
-    public void drawBoard(Graphics g) {
+    private void SplitBlockClump(BlockClump blocks) {
+		for (int x=0;x<width;x++) {
+			if (blocks.collisionColumnRanges[x][0]!=-1) {
+				final int column=x;
+				blockClumpAddList.add(
+						new BlockClump(
+							blocks.getBlocks().stream().filter((block)->block.x==column).collect(Collectors.toList()),
+							0,blocks.y,blocks.yspd,width)
+						);
+			}
+		}
+		blockClumpDeleteList.add(blocks);
+	}
+	public void drawBoard(Graphics g) {
         final int DRAW_STARTX = (int)(x - block_width*((double)width/2));
         final int DRAW_STARTY = (int)(y + block_height*((double)height/2));
         final int DRAW_ENDX = (int)(x + block_width*((double)width/2));

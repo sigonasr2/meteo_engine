@@ -10,7 +10,7 @@ public class BlockClump {
     double x,y; //the lower-left origin of this block clump. Every block positions relative to this.
     double yspd;
     int[][] collisionColumnRanges;
-    int launched = -1; /*
+    int launched = 120; /*
     	Negative is for when block clumps are divided into smaller columns for re-sorting.
      	Positive is used for how much landing launch time before being split and falling.*/
  
@@ -48,7 +48,10 @@ public class BlockClump {
         }
     }
 
-    private void updateBlockCollisionRangeWithBlock(Block b) {
+    public List<Block> getBlocks() {
+		return blocks;
+	}
+	private void updateBlockCollisionRangeWithBlock(Block b) {
         if (collisionColumnRanges[b.x][0]==-1||collisionColumnRanges[b.x][0]>b.y) {
             collisionColumnRanges[b.x][0]=b.y;
         }

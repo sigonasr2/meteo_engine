@@ -1,5 +1,8 @@
 package sig;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 public class Meteo {
@@ -18,7 +21,7 @@ public class Meteo {
         b.run(FRAMECOUNT);
     }
 
-    public static void main(String[] args) {    	
+    public static void main(String[] args) {        	
         double[] val = {0,0,};
         b = new Board(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,24,24,8,14,-0.065,1,4,-2,val);
 
