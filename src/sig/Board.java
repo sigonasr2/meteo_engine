@@ -39,7 +39,7 @@ public class Board {
             }
         }
 
-        BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0);
+        BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0,width);
 
         blockData.add(defaultClump);
     }
