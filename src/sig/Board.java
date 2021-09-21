@@ -3,6 +3,7 @@ package sig;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Board {
@@ -34,25 +35,68 @@ public class Board {
 
         List<Block> initialBlocks = new ArrayList<Block>();
         for (int x=0;x<boardWidth;x++) {
-            for (int y=0;y<3;y++) {
-                initialBlocks.add(new Block(x,y));
+            for (int y=0;y<(int)(Math.random()*12);y++) {
+            	initialBlocks.add(new Block(x,y));
             }
         }
 
         BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0,width);
+        
+        List<Block> initialBlocks2 = new ArrayList<Block>();
+        for (int x=0;x<boardWidth;x++) {
+            for (int y=0;y<(int)(Math.random()*12);y++) {
+            	initialBlocks2.add(new Block(x,y));
+            }
+        }
+        BlockClump defaultClump2 = new BlockClump(initialBlocks2,0,540,0,width);
 
         blockData.add(defaultClump);
+        blockData.add(defaultClump2);
     }
-    public void run() {
+    public void run(long frames) {
+    	
+    	if (frames%100==0) {
+    		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width));
+    	}
+    	
         for (BlockClump blocks : blockData) {
-            if (blocks.y+blocks.yspd+gravity>0) {
-                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
-                blocks.y+=blocks.yspd;
-            } else {
-                //We have hit the bottom.
-                blocks.yspd=0;
-                blocks.y=0;
-            }
+        	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
+        	boolean landed=false;
+        	outerloop:
+        	for (int x=0;x<width;x++) {
+        		if (blocks.collisionColumnRanges[x][0]!=-1) {
+        			for (BlockClump blocks2 : blockData) {
+        				if (!blocks.equals(blocks2)&&blocks2.collisionColumnRanges[x][1]!=-1) {
+        					if (FUTURE_FALL_POSITION<blocks2.y) {
+	        					if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][1]*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height) {
+	        						blocks.yspd=0;
+	        						blocks.y=blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height;
+	        						landed=true;
+	        						break outerloop;
+	        					}
+        					} else {
+        						if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][0]*block_height<blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height) {
+	        						blocks.yspd=0;
+	        						blocks.y=blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height;
+	        						landed=true;
+	        						break outerloop;
+	        					}
+        					}
+        				}
+        			}
+        		}
+        	}
+	        if (!landed) {
+	            if (FUTURE_FALL_POSITION>0) {
+	                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
+	                blocks.y+=blocks.yspd;
+	            } else {
+	                //We have hit the bottom.
+	                blocks.yspd=0;
+	                blocks.y=0;
+	            }
+        	}
+	        //System.out.println(blocks.y);
         }
     }
     public void drawBoard(Graphics g) {
