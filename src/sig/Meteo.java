@@ -15,11 +15,12 @@ public class Meteo {
 
     public static void runGameLoop() {
         FRAMECOUNT++;
+        b.run();
     }
 
     public static void main(String[] args) {
         double[] val = {0,0,};
-        b = new Board(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,16,16,8,14,0.05,1,4,1,val);
+        b = new Board(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,16,16,8,14,-0.065,1,4,-2,val);
 
         JFrame f = new JFrame("Meteo Engine");
         Panel p = new Panel();

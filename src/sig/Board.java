@@ -16,6 +16,7 @@ public class Board {
     double[] combo_power_bonus;
     int x,y;
     int block_width,block_height;
+    double vspeed;
     public Board(int centerX,int centerY,int block_width,int block_height,int boardWidth, int boardHeight, double gravity, double launch_power, double max_rise_spd, double max_fall_spd,
             double[] combo_power_bonus) {
         this.x=centerX;
@@ -38,9 +39,21 @@ public class Board {
             }
         }
 
-        BlockClump defaultClump = new BlockClump(initialBlocks,0,0,0);
+        BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0);
 
         blockData.add(defaultClump);
+    }
+    public void run() {
+        for (BlockClump blocks : blockData) {
+            if (blocks.y+blocks.yspd+gravity>0) {
+                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
+                blocks.y+=blocks.yspd;
+            } else {
+                //We have hit the bottom.
+                blocks.yspd=0;
+                blocks.y=0;
+            }
+        }
     }
     public void drawBoard(Graphics g) {
         final int DRAW_STARTX = (int)(x - block_width*((double)width/2));
