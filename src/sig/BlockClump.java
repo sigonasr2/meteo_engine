@@ -10,8 +10,10 @@ public class BlockClump {
     double x,y; //the lower-left origin of this block clump. Every block positions relative to this.
     double yspd;
     int[][] collisionColumnRanges;
-    boolean launched=false; //Blocks do not fall when landing (by gravity).
-    boolean re_sort=false; //Set to true when block clumps are divided into smaller columns for re-sorting.
+    int launched = -1; /*
+    	Negative is for when block clumps are divided into smaller columns for re-sorting.
+     	Positive is used for how much landing launch time before being split and falling.*/
+ 
     public BlockClump(List<Block> blockList, double x, double y, double startspd, int width) {
     	this.blocks = new ArrayList<Block>();
     	this.blocks.addAll(blockList);
@@ -25,7 +27,6 @@ public class BlockClump {
         this.x=x;
         this.y=y;
         this.yspd=startspd;
-        System.out.println(Arrays.deepToString(collisionColumnRanges));
     }
     public void updateBlockCollision() {
         //Call this whenever the block structure changes. This will define what the top and bottom positions

@@ -58,47 +58,45 @@ public class Board {
     	if (frames%100==0) {
     		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width));
     	}
-    	
+
+    	outerloop:
         for (BlockClump blocks : blockData) {
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
-        	boolean landed=false;
-        	outerloop:
         	for (int x=0;x<width;x++) {
         		if (blocks.collisionColumnRanges[x][0]!=-1) {
         			for (BlockClump blocks2 : blockData) {
         				if (!blocks.equals(blocks2)&&blocks2.collisionColumnRanges[x][1]!=-1) {
         					if (FUTURE_FALL_POSITION<blocks2.y) {
 	        					if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][1]*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height) {
-	        						blocks.yspd=0;
-	        						blocks.y=blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height;
-	        						landed=true;
-	        						break outerloop;
+	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height);
+	        						continue outerloop;
 	        					}
         					} else {
         						if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][0]*block_height<blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height) {
-	        						blocks.yspd=0;
-	        						blocks.y=blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height;
-	        						landed=true;
-	        						break outerloop;
+	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height);
+	        						continue outerloop;
 	        					}
         					}
         				}
         			}
         		}
         	}
-	        if (!landed) {
-	            if (FUTURE_FALL_POSITION>0) {
-	                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
-	                blocks.y+=blocks.yspd;
-	            } else {
-	                //We have hit the bottom.
-	                blocks.yspd=0;
-	                blocks.y=0;
-	            }
-        	}
+            if (FUTURE_FALL_POSITION>0) {
+                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
+                blocks.y+=blocks.yspd;
+            } else {
+                //We have hit the bottom.
+                blocks.yspd=0;
+                blocks.y=0;
+            }
 	        //System.out.println(blocks.y);
         }
     }
+	private void HandleBlockLand(BlockClump blocks, int x, double yset) {
+		blocks.yspd=0;
+		blocks.y=yset;
+		
+	}
     public void drawBoard(Graphics g) {
         final int DRAW_STARTX = (int)(x - block_width*((double)width/2));
         final int DRAW_STARTY = (int)(y + block_height*((double)height/2));
