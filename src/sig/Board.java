@@ -125,21 +125,21 @@ public class Board {
         for (int y=0;y<blocks.maxBlockHeight;y++) {
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             List<Block> blockList = blocks.getSortedBlocksOnRow(y);
-            List<Block> markedBlocks = FindMatches(blockList,width);
+            List<Block> markedBlocks = FindMatches(blockList,width,true);
             if (markedBlocks.size()>0) { //Ignite these blocks.
                 System.out.println("Marked: "+markedBlocks);
             }
         }
         for (int x=0;x<width;x++) {
             List<Block> blockList = blocks.getSortedBlocksOnCol(x);
-            List<Block> markedBlocks = FindMatches(blockList,blocks.maxBlockHeight);
+            List<Block> markedBlocks = FindMatches(blockList,blocks.maxBlockHeight,false);
             if (markedBlocks.size()>0) { //Ignite these blocks.
                 System.out.println("Marked: "+markedBlocks);
             }
         }
         return false;
     }
-    private List<Block> FindMatches(List<Block> blockList, int maxSearch) {
+    private List<Block> FindMatches(List<Block> blockList, int maxSearch, boolean searchingRows) {
         BlockState col = BlockState.IGNITED;
         int matches=0;
         List<Block> markedBlocks = new ArrayList<Block>();
@@ -147,7 +147,7 @@ public class Board {
         for (int i=0;i<maxSearch;i++) {
             if (blockList.isEmpty()) {break;}
             Block currentBlock = blockList.get(0);
-            if (currentBlock.x==i) {
+            if (searchingRows&&currentBlock.x==i||(!searchingRows&&currentBlock.y==i)) {
                 if (col!=BlockState.IGNITED&&currentBlock.state==col) {
                     matches++;
                     tempMarkedBlocks.add(blockList.remove(0));
