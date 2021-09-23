@@ -60,6 +60,12 @@ public class BlockClump {
             }
         }
     }
+    public void drawClumpDots(Graphics g, int originX, int originY, int block_width, int block_height) {
+        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0) {
+            g.setColor(Color.RED);
+            g.drawOval((int)x+originX,(int)-y+originY,2,2);
+        }
+    }
 
     public List<Block> getBlocks() {
 		return blocks;
@@ -76,5 +82,13 @@ public class BlockClump {
     @Override
     public String toString() {
         return "BlockClump [blocks=" + blocks + ", x=" + x + ", y=" + y + ", yspd=" + yspd + "]";
+    }
+    public static void drawDebugBlockClumps(Graphics g, int originX, int originY, int block_width, int block_height, List<BlockClump> blockData) {
+        for (BlockClump bc : blockData) {
+            bc.drawClumpOutlines(g,originX,originY,block_width,block_height);
+        }
+        for (BlockClump bc : blockData) {
+            bc.drawClumpDots(g,originX,originY,block_width,block_height);
+        }
     }
 }

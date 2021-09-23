@@ -59,14 +59,13 @@ public class Board {
         blockData.add(defaultClump2);
     }
     public void run(long frames) {
-    	if (frames%100==0) {
+    	/*if (frames%100==0) {
     		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width,-1));
-    	}
+    	}*/
 
+        outerloop:
         for (BlockClump blocks : blockData) {
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
-            boolean handleCollision = false;
-            outerloop:
         	for (int x=0;x<width;x++) {
         		if (blocks.collisionColumnRanges[x][0]!=-1) {
         			for (BlockClump blocks2 : blockData) {
@@ -74,13 +73,15 @@ public class Board {
         					if (FUTURE_FALL_POSITION<blocks2.y) {
 	        					if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][1]*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height) {
 	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height);
-                                    handleCollision=true;
 	        						continue outerloop;
 	        					}
         					} else {
         						if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][0]*block_height<blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height) {
 	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height);
-                                    handleCollision=true;
+                                    if (blocks.launched==-1) {
+                                        CombineAToB(blocks,blocks2);
+                                        blocks.launched=-2;
+                                    }
 	        						continue outerloop;
 	        					}
         					}
@@ -88,14 +89,12 @@ public class Board {
         			}
         		}
         	}
-            if (!handleCollision) {
-                if (FUTURE_FALL_POSITION>0) {
-                    blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
-                    blocks.y+=blocks.yspd;
-                } else {
-                    //We have hit the bottom.
-                    HandleBlockLand(blocks, x, 0);
-                }
+            if (FUTURE_FALL_POSITION>0) {
+                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
+                blocks.y+=blocks.yspd;
+            } else {
+                //We have hit the bottom.
+                HandleBlockLand(blocks, x, 0);
             }
 	        //System.out.println(blocks.y);
         }
@@ -108,12 +107,18 @@ public class Board {
     		blockClumpAddList.clear();
     	}
     }
-	private void HandleBlockLand(BlockClump blocks, int x, double yset) {
+	private void CombineAToB(BlockClump A, BlockClump B) {
+        blockClumpDeleteList.add(A);
+    }
+    private void HandleBlockLand(BlockClump blocks, int x, double yset) {
 		blocks.yspd=0;
 		blocks.y=yset;
-		if (blocks.launched--==0) {
-			SplitBlockClump(blocks);
-		}
+		if (blocks.launched>0) {
+            blocks.launched--;
+		} else 
+		if (blocks.launched==0) {
+            SplitBlockClump(blocks);
+        }
 	}
     private void SplitBlockClump(BlockClump blocks) {
 		for (int x=0;x<width;x++) {
@@ -122,7 +127,7 @@ public class Board {
 				blockClumpAddList.add(
 						new BlockClump(
 							blocks.getBlocks().stream().filter((block)->block.x==column).collect(Collectors.toList()),
-							0,blocks.y,blocks.yspd,width,blocks.launched)
+							0,blocks.y,blocks.yspd,width,blocks.launched-1)
 						);
 			}
 		}
@@ -138,8 +143,6 @@ public class Board {
         }
         g.setColor(Color.BLACK);
         g.fillRoundRect(DRAW_STARTX, DRAW_STARTY+block_height, DRAW_ENDX-DRAW_STARTX, 3, 3, 1);
-        for (BlockClump bc : blockData) {
-            bc.drawClumpOutlines(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height);
-        }
+        BlockClump.drawDebugBlockClumps(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height,blockData);
     }
 }
