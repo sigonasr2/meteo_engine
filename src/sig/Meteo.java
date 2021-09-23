@@ -33,6 +33,7 @@ public class Meteo {
             public void run(){
                 while (true) {
                     long startTime = System.nanoTime();
+                    runGameLoop();
                     p.repaint();
                     long endTime = System.nanoTime();
                     long diff = endTime-startTime;
@@ -45,32 +46,7 @@ public class Meteo {
                             int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
                             //System.out.println("FRAME DRAWING: Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
                             DRAWTIME = (double)diff/1000000;
-                            Thread.sleep(millis,nanos);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        }.start();
-
-        new Thread() {
-            public void run(){
-                while (true) {
-                    long startTime = System.nanoTime();
-                    runGameLoop();
-                    long endTime = System.nanoTime();
-                    long diff = endTime-startTime;
-                    if (diff>TIMEPERTICK) { //Took longer than 1/60th of a second. No sleep.
-                        System.err.println("Main Game Loop took longer than "+TIMEPERTICK+"ns to calculate ("+diff+"ns total)!");
-                    } else {
-                        try {
-                            long sleepTime = TIMEPERTICK - diff;
-                            long millis = (sleepTime)/1000000;
-                            int nanos = (int)(sleepTime-(((sleepTime)/1000000)*1000000));
-                            //System.out.println("Sleeping for ("+millis+"ms,"+nanos+"ns) - "+(diff)+"ns");
-                            GAMELOOPTIME = (double)diff/1000000;
-                            f.setTitle("Game Loop: "+GAMELOOPTIME+"ms, Draw: "+DRAWTIME+"ms");
+                            f.setTitle("Game Loop: "+DRAWTIME+"ms");
                             Thread.sleep(millis,nanos);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
