@@ -59,9 +59,9 @@ public class Board {
         blockData.add(defaultClump2);
     }
     public void run(long frames) {
-    	/*if (frames%100==0) {
+    	if (frames%100==0) {
     		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width,-1));
-    	}*/
+    	}
 
         outerloop:
         for (BlockClump blocks : blockData) {
@@ -108,6 +108,10 @@ public class Board {
     	}
     }
 	private void CombineAToB(BlockClump A, BlockClump B) {
+        for (Block b : A.getBlocks()) { 
+            b.y = B.collisionColumnRanges[b.x][1]+1;
+            B.addBlock(b);
+        }
         blockClumpDeleteList.add(A);
     }
     private void HandleBlockLand(BlockClump blocks, int x, double yset) {

@@ -7,7 +7,7 @@ import java.util.List;
 import java.awt.Color;
 
 public class BlockClump {
-    private List<Block> blocks;
+    private List<Block> blocks = new ArrayList<Block>();
     double x,y; //the lower-left origin of this block clump. Every block positions relative to this.
     double yspd;
     int[][] collisionColumnRanges;
@@ -16,9 +16,7 @@ public class BlockClump {
      	Positive is used for how much landing launch time before being split and falling.*/
  
     public BlockClump(List<Block> blockList, double x, double y, double startspd, int width, int launched) {
-    	this.blocks = new ArrayList<Block>();
-    	this.blocks.addAll(blockList);
-        collisionColumnRanges = new int[width][];
+    	collisionColumnRanges = new int[width][];
 
         for (int i=0;i<width;i++) {
             collisionColumnRanges[i] = new int[]{-1,-1};
@@ -42,7 +40,10 @@ public class BlockClump {
     }
     public void addBlock(Block...blocks) {
         //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
-        for (Block b : blocks) {updateBlockCollisionRangeWithBlock(b);}
+        for (Block b : blocks) 
+        {updateBlockCollisionRangeWithBlock(b);
+            this.blocks.add(b);
+        }
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
         for (Block b : blocks) {
@@ -50,7 +51,7 @@ public class BlockClump {
         }
     }
     public void drawClumpOutlines(Graphics g, int originX, int originY, int block_width, int block_height) {
-        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0) {
+        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0||Meteo.DEBUG_DRAWING==DebugMode.MODE1) {
             g.setColor(new Color(0,255,0,128));
             for (int i=0;i<collisionColumnRanges.length;i++) {
                 if (collisionColumnRanges[i][0]!=-1) {
@@ -61,7 +62,7 @@ public class BlockClump {
         }
     }
     public void drawClumpDots(Graphics g, int originX, int originY, int block_width, int block_height) {
-        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0) {
+        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0||Meteo.DEBUG_DRAWING==DebugMode.MODE1) {
             g.setColor(Color.RED);
             g.drawOval((int)x+originX,(int)-y+originY,2,2);
         }
