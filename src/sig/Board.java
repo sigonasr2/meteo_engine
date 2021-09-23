@@ -126,8 +126,20 @@ public class Board {
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             List<Block> blockList = blocks.getSortedBlocksOnRow(y);
             List<Block> markedBlocks = FindMatches(blockList,width,true);
+            int ourY = 0;
             if (markedBlocks.size()>0) { //Ignite these blocks.
-                System.out.println("Marked: "+markedBlocks);
+                //Get all blocks above us. We will be taking all of these out of the current block clump and making a new one.
+                List<Block> newClumpList = new ArrayList<Block>();
+                for (Block b : markedBlocks) { //Get all blocks above this set.
+                    newClumpList.addAll(blocks.getBlocks().stream().filter((block)->block.x==b.x&&block.y>b.y).collect(Collectors.toList()));
+                    b.state = BlockState.IGNITED;
+                    ourY=b.y;
+                }
+                newClumpList.addAll(markedBlocks);
+                BlockClump newClump = new BlockClump(newClumpList,0,blocks.y+ourY*block_height,launch_power,width,120);
+                blocks.removeBlock(markedBlocks.toArray(new Block[markedBlocks.size()]));
+                blockClumpAddList.add(newClump);
+                //System.out.println("Marked: "+markedBlocks);
             }
         }
         for (int x=0;x<width;x++) {

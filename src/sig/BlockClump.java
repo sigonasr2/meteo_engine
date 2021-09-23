@@ -47,6 +47,12 @@ public class BlockClump {
             this.blocks.add(b);
         }
     }
+    public void removeBlock(Block...blocks) {
+        for (Block b : blocks) {
+            updateBlockCollision();
+            this.blocks.remove(b);
+        }
+    }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
         for (Block b : blocks) {
             b.draw(g,originX+x,originY-y,block_width,block_height,launched);
