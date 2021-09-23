@@ -1,6 +1,7 @@
 package sig;
 
 import java.awt.Graphics;
+import java.awt.Color;
 
 public class Block{
     BlockState state;
@@ -21,8 +22,12 @@ public class Block{
     public String toString() {
         return "Block [state=" + state + ", x=" + x + ", y=" + y + "]";
     }
-    public void draw(Graphics g, double x, double y, int block_width, int block_height) {
-        g.setColor(state.getCol());
+    public void draw(Graphics g, double x, double y, int block_width, int block_height,int launched) {
+        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0&&launched<=-1) {
+            g.setColor(Color.BLACK);
+        } else {
+            g.setColor(state.getCol());
+        }
         g.fill3DRect((int)x+this.x*block_width,(int)y-this.y*block_height, block_width, block_height, true);
     }
 }

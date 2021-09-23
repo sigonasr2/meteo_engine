@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.awt.Color;
 
 public class BlockClump {
     private List<Block> blocks;
@@ -14,7 +15,7 @@ public class BlockClump {
     	Negative is for when block clumps are divided into smaller columns for re-sorting.
      	Positive is used for how much landing launch time before being split and falling.*/
  
-    public BlockClump(List<Block> blockList, double x, double y, double startspd, int width) {
+    public BlockClump(List<Block> blockList, double x, double y, double startspd, int width, int launched) {
     	this.blocks = new ArrayList<Block>();
     	this.blocks.addAll(blockList);
         collisionColumnRanges = new int[width][];
@@ -27,6 +28,7 @@ public class BlockClump {
         this.x=x;
         this.y=y;
         this.yspd=startspd;
+        this.launched=launched;
     }
     public void updateBlockCollision() {
         //Call this whenever the block structure changes. This will define what the top and bottom positions
@@ -44,7 +46,18 @@ public class BlockClump {
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
         for (Block b : blocks) {
-            b.draw(g,originX+x*block_width,originY-y,block_width,block_height);
+            b.draw(g,originX+x*block_width,originY-y,block_width,block_height,launched);
+        }
+    }
+    public void drawClumpOutlines(Graphics g, int originX, int originY, int block_width, int block_height) {
+        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0) {
+            g.setColor(new Color(0,255,0,128));
+            for (int i=0;i<collisionColumnRanges.length;i++) {
+                if (collisionColumnRanges[i][0]!=-1) {
+                    g.drawRect((int)(x+i*block_width)+originX,(int)(originY-y-(block_height*(collisionColumnRanges[i][1]-collisionColumnRanges[i][0]))),block_width,block_height*(collisionColumnRanges[i][1]-collisionColumnRanges[i][0]+1));
+                    g.drawRect((int)(x+i*block_width)+originX+1,(int)(originY+1-y-(block_height*(collisionColumnRanges[i][1]-collisionColumnRanges[i][0]))),block_width,block_height*(collisionColumnRanges[i][1]-collisionColumnRanges[i][0]+1));
+                }
+            }
         }
     }
 

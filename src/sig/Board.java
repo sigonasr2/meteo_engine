@@ -45,7 +45,7 @@ public class Board {
             }
         }
 
-        BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0,width);
+        BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0,width,120);
         
         List<Block> initialBlocks2 = new ArrayList<Block>();
         for (int x=0;x<boardWidth;x++) {
@@ -53,19 +53,20 @@ public class Board {
             	initialBlocks2.add(new Block(x,y));
             }
         }
-        BlockClump defaultClump2 = new BlockClump(initialBlocks2,0,540,0,width);
+        BlockClump defaultClump2 = new BlockClump(initialBlocks2,0,540,0,width,120);
 
         blockData.add(defaultClump);
         blockData.add(defaultClump2);
     }
     public void run(long frames) {
     	if (frames%100==0) {
-    		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width));
+    		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width,-1));
     	}
 
-    	outerloop:
         for (BlockClump blocks : blockData) {
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
+            boolean handleCollision = false;
+            outerloop:
         	for (int x=0;x<width;x++) {
         		if (blocks.collisionColumnRanges[x][0]!=-1) {
         			for (BlockClump blocks2 : blockData) {
@@ -73,11 +74,13 @@ public class Board {
         					if (FUTURE_FALL_POSITION<blocks2.y) {
 	        					if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][1]*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height) {
 	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height);
+                                    handleCollision=true;
 	        						continue outerloop;
 	        					}
         					} else {
         						if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][0]*block_height<blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height) {
 	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height);
+                                    handleCollision=true;
 	        						continue outerloop;
 	        					}
         					}
@@ -85,13 +88,14 @@ public class Board {
         			}
         		}
         	}
-            if (FUTURE_FALL_POSITION>0) {
-                blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
-                blocks.y+=blocks.yspd;
-            } else {
-                //We have hit the bottom.
-                blocks.yspd=0;
-                blocks.y=0;
+            if (!handleCollision) {
+                if (FUTURE_FALL_POSITION>0) {
+                    blocks.yspd=Math.max(blocks.yspd+gravity,max_fall_spd);
+                    blocks.y+=blocks.yspd;
+                } else {
+                    //We have hit the bottom.
+                    HandleBlockLand(blocks, x, 0);
+                }
             }
 	        //System.out.println(blocks.y);
         }
@@ -107,7 +111,7 @@ public class Board {
 	private void HandleBlockLand(BlockClump blocks, int x, double yset) {
 		blocks.yspd=0;
 		blocks.y=yset;
-		if (blocks.launched--==-1) {
+		if (blocks.launched--==0) {
 			SplitBlockClump(blocks);
 		}
 	}
@@ -118,7 +122,7 @@ public class Board {
 				blockClumpAddList.add(
 						new BlockClump(
 							blocks.getBlocks().stream().filter((block)->block.x==column).collect(Collectors.toList()),
-							0,blocks.y,blocks.yspd,width)
+							0,blocks.y,blocks.yspd,width,blocks.launched)
 						);
 			}
 		}
@@ -134,5 +138,8 @@ public class Board {
         }
         g.setColor(Color.BLACK);
         g.fillRoundRect(DRAW_STARTX, DRAW_STARTY+block_height, DRAW_ENDX-DRAW_STARTX, 3, 3, 1);
+        for (BlockClump bc : blockData) {
+            bc.drawClumpOutlines(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height);
+        }
     }
 }
