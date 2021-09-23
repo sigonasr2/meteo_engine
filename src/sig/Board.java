@@ -112,13 +112,10 @@ public class Board {
         //Start from one block and work our way across, seeing if we can make a match of 3 or more. Go to the next row, repeat. Then do the columns. Once all blocks marked for ignition, ignite them and send them.
         //Lowest block is used as the block clump starting point.
         for (int y=0;y<blocks.maxBlockHeight;y++) {
-            for (int x=0;x<width;x++) {
-                final int xx=x,yy=y;
-                List<Block> bl = blocks.getBlocks().stream().filter((block)->block.x==xx&&block.y==yy).collect(Collectors.toList());
-                if (bl.size()>0) {
-                    //System.out.println("Found a block at ("+x+","+y+")");
-                }
-            }
+            System.out.println(blocks.getSortedBlocksOnRow(y));
+        }
+        for (int x=0;x<width;x++) {
+            System.out.println(blocks.getSortedBlocksOnCol(x));
         }
         return false;
     }

@@ -2,8 +2,8 @@ package sig;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.awt.Color;
 
 public class BlockClump {
@@ -77,6 +77,12 @@ public class BlockClump {
     public List<Block> getBlocks() {
 		return blocks;
 	}
+    public List<Block> getSortedBlocksOnRow(int row) {
+        return getBlocks().stream().filter((block)->block.y==row).sorted((b1,b2)->b1.x-b2.x).collect(Collectors.toList());
+    }
+    public List<Block> getSortedBlocksOnCol(int col) {
+        return getBlocks().stream().filter((block)->block.x==col).sorted((b1,b2)->b1.y-b2.y).collect(Collectors.toList());
+    }
 	private void updateBlockCollisionRangeWithBlock(Block b) {
         if (collisionColumnRanges[b.x][0]==-1||collisionColumnRanges[b.x][0]>b.y) {
             collisionColumnRanges[b.x][0]=b.y;
