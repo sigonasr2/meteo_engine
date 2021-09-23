@@ -65,6 +65,7 @@ public class Board {
 
         outerloop:
         for (BlockClump blocks : blockData) {
+            if (checkForMatches(blocks)) {continue;}
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
         	for (int x=0;x<width;x++) {
         		if (blocks.collisionColumnRanges[x][0]!=-1) {
@@ -106,6 +107,14 @@ public class Board {
     		blockData.addAll(blockClumpAddList);
     		blockClumpAddList.clear();
     	}
+    }
+    private boolean checkForMatches(BlockClump blocks) {
+        //Start from one block and work our way across, seeing if we can make a match of 3 or more. Go to the next row, repeat. Then do the columns. Once all blocks marked for ignition, ignite them and send them.
+        //Lowest block is used as the block clump starting point.
+        for (int y=0;y<blocks.maxBlockHeight;y++) {
+            
+        }
+        return false;
     }
 	private void CombineAToB(BlockClump A, BlockClump B) {
         for (Block b : A.getBlocks()) { 

@@ -11,8 +11,9 @@ public class BlockClump {
     double x,y; //the lower-left origin of this block clump. Every block positions relative to this.
     double yspd;
     int[][] collisionColumnRanges;
+    int maxBlockHeight=0; //Gives the height in blocks. So if the top is 0, this should be 1.
     int launched = 120; /*
-    	Negative is for when block clumps are divided into smaller columns for re-sorting.
+    	Negative is for when block clumps are divided into smaller columns for re-sorting. 0=Ready for split. -1=Ready for merging. -2=Merged (Dead clump)
      	Positive is used for how much landing launch time before being split and falling.*/
  
     public BlockClump(List<Block> blockList, double x, double y, double startspd, int width, int launched) {
@@ -32,6 +33,7 @@ public class BlockClump {
         //Call this whenever the block structure changes. This will define what the top and bottom positions
         //of each vertical column are for faster collision checking.
         collisionColumnRanges = new int[collisionColumnRanges.length][];
+        maxBlockHeight=0;
 
         for (int i=0;i<collisionColumnRanges.length;i++) {
             collisionColumnRanges[i] = new int[]{-1,-1};
@@ -47,11 +49,15 @@ public class BlockClump {
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
         for (Block b : blocks) {
-            b.draw(g,originX+x*block_width,originY-y,block_width,block_height,launched);
+            b.draw(g,originX+x,originY-y,block_width,block_height,launched);
+            if (Meteo.DEBUG_DRAWING==DebugMode.MODE2) {
+                g.setColor(Color.BLACK);
+                g.drawString(Integer.toString(maxBlockHeight),(int)x+b.x*block_width+originX+4,(int)-y-b.y*block_height+originY+16);
+            }
         }
     }
     public void drawClumpOutlines(Graphics g, int originX, int originY, int block_width, int block_height) {
-        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0||Meteo.DEBUG_DRAWING==DebugMode.MODE1) {
+        if (Meteo.DEBUG_DRAWING!=DebugMode.OFF) {
             g.setColor(new Color(0,255,0,128));
             for (int i=0;i<collisionColumnRanges.length;i++) {
                 if (collisionColumnRanges[i][0]!=-1) {
@@ -62,7 +68,7 @@ public class BlockClump {
         }
     }
     public void drawClumpDots(Graphics g, int originX, int originY, int block_width, int block_height) {
-        if (Meteo.DEBUG_DRAWING==DebugMode.MODE0||Meteo.DEBUG_DRAWING==DebugMode.MODE1) {
+        if (Meteo.DEBUG_DRAWING!=DebugMode.OFF) {
             g.setColor(Color.RED);
             g.drawOval((int)x+originX,(int)-y+originY,2,2);
         }
@@ -77,6 +83,7 @@ public class BlockClump {
         }
         if (collisionColumnRanges[b.x][1]==-1||collisionColumnRanges[b.x][1]<b.y) {
             collisionColumnRanges[b.x][1]=b.y;
+            maxBlockHeight=b.y+1;
         }
     }
     

@@ -15,7 +15,7 @@ public class Meteo {
     public static Board b;
 
     public final static long TIMEPERTICK = 16666667l;
-    public static DebugMode DEBUG_DRAWING = DebugMode.MODE1;
+    public static DebugMode DEBUG_DRAWING = DebugMode.MODE2;
 
     public static void runGameLoop() {
         FRAMECOUNT++;
