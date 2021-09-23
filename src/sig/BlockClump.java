@@ -89,7 +89,7 @@ public class BlockClump {
         }
         if (collisionColumnRanges[b.x][1]==-1||collisionColumnRanges[b.x][1]<b.y) {
             collisionColumnRanges[b.x][1]=b.y;
-            maxBlockHeight=b.y+1;
+            maxBlockHeight=Math.max(maxBlockHeight,b.y+1);
         }
     }
     

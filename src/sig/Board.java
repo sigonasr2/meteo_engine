@@ -99,6 +99,7 @@ public class Board {
             }
 	        //System.out.println(blocks.y);
         }
+        MergeAllGroundedClumps();
     	if (blockClumpDeleteList.size()>0) {
     		blockData.removeAll(blockClumpDeleteList);
     		blockClumpDeleteList.clear();
@@ -108,16 +109,67 @@ public class Board {
     		blockClumpAddList.clear();
     	}
     }
+    private void MergeAllGroundedClumps() {
+        List<BlockClump> groundedClumps = blockData.stream().filter((cl)->cl.y==0).collect(Collectors.toList());
+        if (groundedClumps.size()>1) {
+            BlockClump base = groundedClumps.remove(0);
+            for (BlockClump bc : groundedClumps) {
+                base.addBlock(bc.getBlocks().toArray(new Block[bc.getBlocks().size()]));
+            }
+            blockClumpDeleteList.addAll(groundedClumps);
+        }
+    }
     private boolean checkForMatches(BlockClump blocks) {
         //Start from one block and work our way across, seeing if we can make a match of 3 or more. Go to the next row, repeat. Then do the columns. Once all blocks marked for ignition, ignite them and send them.
         //Lowest block is used as the block clump starting point.
         for (int y=0;y<blocks.maxBlockHeight;y++) {
-            System.out.println(blocks.getSortedBlocksOnRow(y));
+            //System.out.println(blocks.getSortedBlocksOnRow(y));
+            List<Block> blockList = blocks.getSortedBlocksOnRow(y);
+            List<Block> markedBlocks = FindMatches(blockList,width);
+            if (markedBlocks.size()>0) { //Ignite these blocks.
+                System.out.println("Marked: "+markedBlocks);
+            }
         }
         for (int x=0;x<width;x++) {
-            System.out.println(blocks.getSortedBlocksOnCol(x));
+            List<Block> blockList = blocks.getSortedBlocksOnCol(x);
+            List<Block> markedBlocks = FindMatches(blockList,blocks.maxBlockHeight);
+            if (markedBlocks.size()>0) { //Ignite these blocks.
+                System.out.println("Marked: "+markedBlocks);
+            }
         }
         return false;
+    }
+    private List<Block> FindMatches(List<Block> blockList, int maxSearch) {
+        BlockState col = BlockState.IGNITED;
+        int matches=0;
+        List<Block> markedBlocks = new ArrayList<Block>();
+        List<Block> tempMarkedBlocks = new ArrayList<Block>();
+        for (int i=0;i<maxSearch;i++) {
+            if (blockList.isEmpty()) {break;}
+            Block currentBlock = blockList.get(0);
+            if (currentBlock.x==i) {
+                if (col!=BlockState.IGNITED&&currentBlock.state==col) {
+                    matches++;
+                    tempMarkedBlocks.add(blockList.remove(0));
+                } else {
+                    if (matches>=3) {
+                        markedBlocks.addAll(tempMarkedBlocks);
+                    }
+                    matches=1;
+                    col=currentBlock.state;
+                    tempMarkedBlocks.clear();
+                    tempMarkedBlocks.add(blockList.remove(0));
+                }
+            } else {
+                col = BlockState.IGNITED;
+                matches=0;
+                tempMarkedBlocks.clear();
+            }
+        }
+        if (matches>=3) {
+            markedBlocks.addAll(tempMarkedBlocks);
+        }
+        return markedBlocks;
     }
 	private void CombineAToB(BlockClump A, BlockClump B) {
         for (Block b : A.getBlocks()) { 
@@ -160,5 +212,9 @@ public class Board {
         g.setColor(Color.BLACK);
         g.fillRoundRect(DRAW_STARTX, DRAW_STARTY+block_height, DRAW_ENDX-DRAW_STARTX, 3, 3, 1);
         BlockClump.drawDebugBlockClumps(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height,blockData);
+        if (Meteo.DEBUG_DRAWING!=DebugMode.OFF) {
+            g.setColor(Color.BLACK);
+            g.drawString(Integer.toString(blockData.size()),4,Meteo.SCREEN_HEIGHT-20);
+        }
     }
 }
