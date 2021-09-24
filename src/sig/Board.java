@@ -19,6 +19,13 @@ public class Board {
     int x,y;
     int block_width,block_height;
     double vspeed;
+    final static BlockState[] STARTINGSTATES = {BlockState.BLUE,
+        BlockState.GREEN,
+        BlockState.ORANGE,
+        BlockState.PURPLE,
+        BlockState.RED,
+        BlockState.WHITE,
+        BlockState.YELLOW,};
 	
 	List<BlockClump> blockClumpDeleteList = new ArrayList<BlockClump>();
 	List<BlockClump> blockClumpAddList = new ArrayList<BlockClump>();
@@ -127,7 +134,7 @@ public class Board {
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             List<Block> blockList = blocks.getSortedBlocksOnRow(y);
-            System.out.println(" "+blockList);
+            //System.out.println(" "+blockList);
             markedBlocks.addAll(FindMatches(blockList));
         }
         for (int x=0;x<width;x++) {
@@ -135,17 +142,25 @@ public class Board {
             markedBlocks.addAll(FindMatches(blockList));
         }
         if (markedBlocks.size()>0) {
+            int minY=Integer.MAX_VALUE;
             List<Block> newClumpBlocks = new ArrayList<Block>();
             newClumpBlocks.addAll(markedBlocks);
             for (Block b : markedBlocks) {
                 b.state = BlockState.IGNITED;
                 //All blocks above marked blocks now join the clump.
                 newClumpBlocks.addAll(blocks.getSortedBlocksOnCol(b.x).stream().filter((block)->!newClumpBlocks.contains(block)&&block.y>b.y).collect(Collectors.toList()));
+                minY=Math.min(minY,b.y);
             }
             //For now just get rid of them.
             blocks.removeBlock(newClumpBlocks.toArray(new Block[newClumpBlocks.size()]));
+            for (Block b : newClumpBlocks) {
+                b.y-=minY;
+            }
+            blockClumpAddList.add(
+                new BlockClump(newClumpBlocks, blocks.x, blocks.y+minY*block_height, launch_power, width, 120)
+            );
         }
-        return false;
+        return markedBlocks.size()>0;
     }
     private List<Block> FindMatches(List<Block> blockList) {
         List<Block> markedBlocks = new ArrayList<Block>();
@@ -201,6 +216,11 @@ public class Board {
             blocks.launched--;
 		} else 
 		if (blocks.launched==0) {
+            for (Block b : blocks.getBlocks()) {
+                if (b.state==BlockState.IGNITED) {
+                    b.state=STARTINGSTATES[(int)(Meteo.r.nextInt(3))];
+                }
+            }
             SplitBlockClump(blocks);
         }
 	}
