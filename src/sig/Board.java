@@ -157,7 +157,7 @@ public class Board {
                 b.y-=minY;
             }
             blockClumpAddList.add(
-                new BlockClump(newClumpBlocks, blocks.x, blocks.y+minY*block_height, launch_power, width, 120)
+                new BlockClump(newClumpBlocks, blocks.x, blocks.y+minY*block_height+4, launch_power, width, 120)
             );
         }
         return markedBlocks.size()>0;
@@ -216,12 +216,14 @@ public class Board {
             blocks.launched--;
 		} else 
 		if (blocks.launched==0) {
+            SplitBlockClump(blocks);
+        }
+        if (blocks.launched<=0) {
             for (Block b : blocks.getBlocks()) {
                 if (b.state==BlockState.IGNITED) {
                     b.state=STARTINGSTATES[(int)(Meteo.r.nextInt(3))];
                 }
             }
-            SplitBlockClump(blocks);
         }
 	}
     private void SplitBlockClump(BlockClump blocks) {
