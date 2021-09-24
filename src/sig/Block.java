@@ -16,7 +16,7 @@ public class Block{
     public Block(int x,int y) {
         this.x=x;
         this.y=y;
-        state = STARTINGSTATES[(int)(Math.random()*1)];
+        state = STARTINGSTATES[(int)(Meteo.r.nextInt(1))];
     }
     @Override
     public String toString() {

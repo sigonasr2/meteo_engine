@@ -38,9 +38,9 @@ public class Board {
         this.combo_power_bonus = combo_power_bonus;
         this.blockData = new ArrayList<BlockClump>();
 
-        List<Block> initialBlocks = new ArrayList<Block>();
+        /*List<Block> initialBlocks = new ArrayList<Block>();
         for (int x=0;x<boardWidth;x++) {
-            for (int y=0;y<(int)(Math.random()*12);y++) {
+            for (int y=0;y<(int)(Meteo.r.nextInt(12));y++) {
             	initialBlocks.add(new Block(x,y));
             }
         }
@@ -49,18 +49,18 @@ public class Board {
         
         List<Block> initialBlocks2 = new ArrayList<Block>();
         for (int x=0;x<boardWidth;x++) {
-            for (int y=0;y<(int)(Math.random()*12);y++) {
+            for (int y=0;y<(int)(Meteo.r.nextInt(12));y++) {
             	initialBlocks2.add(new Block(x,y));
             }
         }
         BlockClump defaultClump2 = new BlockClump(initialBlocks2,0,540,0,width,120);
 
         blockData.add(defaultClump);
-        blockData.add(defaultClump2);
+        blockData.add(defaultClump2);*/
     }
     public void run(long frames) {
-    	if (frames%40==0) {
-    		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width,-1));
+    	if (frames%20==0) {
+    		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Meteo.r.nextInt(width)),0)),0,590,0,width,-1));
     	}
 
         outerloop:
@@ -127,11 +127,12 @@ public class Board {
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             List<Block> blockList = blocks.getSortedBlocksOnRow(y);
-            markedBlocks.addAll(FindMatches(blockList,width,true));
+            System.out.println(" "+blockList);
+            markedBlocks.addAll(FindMatches(blockList));
         }
         for (int x=0;x<width;x++) {
             List<Block> blockList = blocks.getSortedBlocksOnCol(x);
-            markedBlocks.addAll(FindMatches(blockList,blocks.maxBlockHeight,false));
+            markedBlocks.addAll(FindMatches(blockList));
         }
         if (markedBlocks.size()>0) {
             List<Block> newClumpBlocks = new ArrayList<Block>();
@@ -146,22 +147,23 @@ public class Board {
         }
         return false;
     }
-    private List<Block> FindMatches(List<Block> blockList, int maxSearch, boolean searchingRows) {
-        BlockState col = BlockState.IGNITED;
-        int matches=0;
+    private List<Block> FindMatches(List<Block> blockList) {
         List<Block> markedBlocks = new ArrayList<Block>();
         List<Block> tempMarkedBlocks = new ArrayList<Block>();
-        for (int i=0;i<maxSearch;i++) {
-            if (blockList.isEmpty()) {break;}
+        if (blockList.size()==0) {return markedBlocks;}
+        BlockState col = blockList.get(0).state;
+        int matches= 1;
+        int prevX = blockList.get(0).x;
+        int prevY = blockList.get(0).y;
+        while (blockList.size()>0) {
             Block currentBlock = blockList.get(0);
-            if (searchingRows&&currentBlock.x==i||(!searchingRows&&currentBlock.y==i)) {
+            if (Math.abs(currentBlock.x-prevX)==1||Math.abs(currentBlock.y-prevY)==1) {
                 if (col!=BlockState.IGNITED&&currentBlock.state==col) {
                     matches++;
                     tempMarkedBlocks.add(blockList.remove(0));
                 } else {
                     if (matches>=3) {
                         markedBlocks.addAll(tempMarkedBlocks);
-                        System.out.println("  Added to Marked blocks: "+tempMarkedBlocks);
                     }
                     matches=1;
                     col=currentBlock.state;
@@ -169,14 +171,19 @@ public class Board {
                     tempMarkedBlocks.add(blockList.remove(0));
                 }
             } else {
-                col = BlockState.IGNITED;
-                matches=0;
+                if (matches>=3) {
+                    markedBlocks.addAll(tempMarkedBlocks);
+                }
+                matches=1;
+                col=currentBlock.state;
                 tempMarkedBlocks.clear();
+                tempMarkedBlocks.add(blockList.remove(0));
             }
+            prevX=currentBlock.x;
+            prevY=currentBlock.y;
         }
         if (matches>=3) {
             markedBlocks.addAll(tempMarkedBlocks);
-            System.out.println("  Added to Marked blocks: "+tempMarkedBlocks);
         }
         return markedBlocks;
     }

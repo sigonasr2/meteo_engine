@@ -43,8 +43,9 @@ public class BlockClump {
     public void addBlock(Block...blocks) {
         //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
         for (Block b : blocks) 
-        {updateBlockCollisionRangeWithBlock(b);
+        {
             this.blocks.add(b);
+            updateBlockCollisionRangeWithBlock(b);
         }
     }
     public void removeBlock(Block...blocks) {
