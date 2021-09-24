@@ -49,9 +49,9 @@ public class BlockClump {
     }
     public void removeBlock(Block...blocks) {
         for (Block b : blocks) {
-            updateBlockCollision();
             this.blocks.remove(b);
         }
+        updateBlockCollision();
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
         for (Block b : blocks) {
@@ -95,8 +95,8 @@ public class BlockClump {
         }
         if (collisionColumnRanges[b.x][1]==-1||collisionColumnRanges[b.x][1]<b.y) {
             collisionColumnRanges[b.x][1]=b.y;
-            maxBlockHeight=Math.max(maxBlockHeight,b.y+1);
         }
+        maxBlockHeight=Math.max(maxBlockHeight,b.y+1);
     }
     
     @Override

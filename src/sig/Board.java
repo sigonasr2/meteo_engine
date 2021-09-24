@@ -59,7 +59,7 @@ public class Board {
         blockData.add(defaultClump2);
     }
     public void run(long frames) {
-    	if (frames%100==0) {
+    	if (frames%40==0) {
     		blockData.add(new BlockClump(Arrays.asList(new Block((int)(Math.random()*width),0)),0,590,0,width,-1));
     	}
 
@@ -122,32 +122,27 @@ public class Board {
     private boolean checkForMatches(BlockClump blocks) {
         //Start from one block and work our way across, seeing if we can make a match of 3 or more. Go to the next row, repeat. Then do the columns. Once all blocks marked for ignition, ignite them and send them.
         //Lowest block is used as the block clump starting point.
+        List<Block> markedBlocks = new ArrayList<Block>();
         for (int y=0;y<blocks.maxBlockHeight;y++) {
             //System.out.println(blocks.getSortedBlocksOnRow(y));
+            //System.out.println(blocks.getSortedBlocksOnRow(y));
             List<Block> blockList = blocks.getSortedBlocksOnRow(y);
-            List<Block> markedBlocks = FindMatches(blockList,width,true);
-            int ourY = 0;
-            if (markedBlocks.size()>0) { //Ignite these blocks.
-                //Get all blocks above us. We will be taking all of these out of the current block clump and making a new one.
-                List<Block> newClumpList = new ArrayList<Block>();
-                for (Block b : markedBlocks) { //Get all blocks above this set.
-                    newClumpList.addAll(blocks.getBlocks().stream().filter((block)->block.x==b.x&&block.y>b.y).collect(Collectors.toList()));
-                    b.state = BlockState.IGNITED;
-                    ourY=b.y;
-                }
-                newClumpList.addAll(markedBlocks);
-                BlockClump newClump = new BlockClump(newClumpList,0,blocks.y+ourY*block_height,launch_power,width,120);
-                blocks.removeBlock(markedBlocks.toArray(new Block[markedBlocks.size()]));
-                blockClumpAddList.add(newClump);
-                //System.out.println("Marked: "+markedBlocks);
-            }
+            markedBlocks.addAll(FindMatches(blockList,width,true));
         }
         for (int x=0;x<width;x++) {
             List<Block> blockList = blocks.getSortedBlocksOnCol(x);
-            List<Block> markedBlocks = FindMatches(blockList,blocks.maxBlockHeight,false);
-            if (markedBlocks.size()>0) { //Ignite these blocks.
-                System.out.println("Marked: "+markedBlocks);
+            markedBlocks.addAll(FindMatches(blockList,blocks.maxBlockHeight,false));
+        }
+        if (markedBlocks.size()>0) {
+            List<Block> newClumpBlocks = new ArrayList<Block>();
+            newClumpBlocks.addAll(markedBlocks);
+            for (Block b : markedBlocks) {
+                b.state = BlockState.IGNITED;
+                //All blocks above marked blocks now join the clump.
+                newClumpBlocks.addAll(blocks.getSortedBlocksOnCol(b.x).stream().filter((block)->!newClumpBlocks.contains(block)&&block.y>b.y).collect(Collectors.toList()));
             }
+            //For now just get rid of them.
+            blocks.removeBlock(newClumpBlocks.toArray(new Block[newClumpBlocks.size()]));
         }
         return false;
     }
@@ -166,6 +161,7 @@ public class Board {
                 } else {
                     if (matches>=3) {
                         markedBlocks.addAll(tempMarkedBlocks);
+                        System.out.println("  Added to Marked blocks: "+tempMarkedBlocks);
                     }
                     matches=1;
                     col=currentBlock.state;
@@ -180,6 +176,7 @@ public class Board {
         }
         if (matches>=3) {
             markedBlocks.addAll(tempMarkedBlocks);
+            System.out.println("  Added to Marked blocks: "+tempMarkedBlocks);
         }
         return markedBlocks;
     }
