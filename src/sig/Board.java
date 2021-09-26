@@ -19,6 +19,7 @@ public class Board {
     int x,y;
     int block_width,block_height;
     double vspeed;
+    int attack_counter=0;
     final static BlockState[] STARTINGSTATES = {BlockState.BLUE,
         BlockState.GREEN,
         BlockState.ORANGE,
@@ -44,26 +45,6 @@ public class Board {
         this.max_fall_spd = max_fall_spd;
         this.combo_power_bonus = combo_power_bonus;
         this.blockData = new ArrayList<BlockClump>();
-
-        /*List<Block> initialBlocks = new ArrayList<Block>();
-        for (int x=0;x<boardWidth;x++) {
-            for (int y=0;y<(int)(Meteo.r.nextInt(12));y++) {
-            	initialBlocks.add(new Block(x,y));
-            }
-        }
-
-        BlockClump defaultClump = new BlockClump(initialBlocks,0,260,0,width,120);
-        
-        List<Block> initialBlocks2 = new ArrayList<Block>();
-        for (int x=0;x<boardWidth;x++) {
-            for (int y=0;y<(int)(Meteo.r.nextInt(12));y++) {
-            	initialBlocks2.add(new Block(x,y));
-            }
-        }
-        BlockClump defaultClump2 = new BlockClump(initialBlocks2,0,540,0,width,120);
-
-        blockData.add(defaultClump);
-        blockData.add(defaultClump2);*/
     }
     public void run(long frames) {
     	if (frames%20==0) {
@@ -72,6 +53,7 @@ public class Board {
 
         outerloop:
         for (BlockClump blocks : blockData) {
+        	DestroyOutsideBlocks(blocks);
             if (checkForMatches(blocks)) {continue;}
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
         	for (int x=0;x<width;x++) {
@@ -116,7 +98,17 @@ public class Board {
     		blockClumpAddList.clear();
     	}
     }
-    private void MergeAllGroundedClumps() {
+    private void DestroyOutsideBlocks(BlockClump blocks) {
+    	if (blocks.yspd>0) {
+			for (int[] range : blocks.collisionColumnRanges) {
+				if (range[1]*block_height+blocks.y>block_height*height) {
+					List<Block> removedBlocks = blocks.getBlocks().stream().filter((block)->block.y*block_height+blocks.y>block_height*height).collect(Collectors.toList());
+					blocks.removeBlock(removedBlocks.toArray(new Block[removedBlocks.size()]));
+				}
+			}
+    	}
+	}
+	private void MergeAllGroundedClumps() {
         List<BlockClump> groundedClumps = blockData.stream().filter((cl)->cl.y==0).collect(Collectors.toList());
         if (groundedClumps.size()>1) {
             BlockClump base = groundedClumps.remove(0);
