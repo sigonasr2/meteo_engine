@@ -135,11 +135,11 @@ public class Board {
             //System.out.println(blocks.getSortedBlocksOnRow(y));
             List<Block> blockList = blocks.getSortedBlocksOnRow(y);
             //System.out.println(" "+blockList);
-            markedBlocks.addAll(FindMatches(blockList));
+            addAllToListUnique(markedBlocks,FindMatches(blockList));
         }
         for (int x=0;x<width;x++) {
             List<Block> blockList = blocks.getSortedBlocksOnCol(x);
-            markedBlocks.addAll(FindMatches(blockList));
+            addAllToListUnique(markedBlocks,FindMatches(blockList));
         }
         if (markedBlocks.size()>0) {
             int minY=Integer.MAX_VALUE;
@@ -162,7 +162,10 @@ public class Board {
         }
         return markedBlocks.size()>0;
     }
-    private List<Block> FindMatches(List<Block> blockList) {
+    private void addAllToListUnique(List<Block> list, List<Block> listToAddFrom) {
+		list.addAll(listToAddFrom.stream().filter((block)->!list.contains(block)).collect(Collectors.toList()));
+	}
+	private List<Block> FindMatches(List<Block> blockList) {
         List<Block> markedBlocks = new ArrayList<Block>();
         List<Block> tempMarkedBlocks = new ArrayList<Block>();
         if (blockList.size()==0) {return markedBlocks;}
