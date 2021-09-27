@@ -1,7 +1,9 @@
 package sig;
 
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +22,10 @@ public class Board {
     int block_width,block_height;
     double vspeed;
     int attack_counter=0;
+
+    BlockClump clumpClickId;
+    Block clickBlockX;
+
     final static BlockState[] STARTINGSTATES = {BlockState.BLUE,
         BlockState.GREEN,
         BlockState.ORANGE,
@@ -255,5 +261,32 @@ public class Board {
             g.setColor(Color.BLACK);
             g.drawString(Integer.toString(blockData.size()),4,Meteo.SCREEN_HEIGHT-20);
         }
+    }
+    public void mouseClicked(MouseEvent e) {
+        //System.out.println("Clicked: "+e.getPoint());
+    }
+    public void mousePressed(MouseEvent e) {
+        //System.out.println("Pressed: "+e.getPoint());
+        //Adjust Y coordinate based on where the board is positioned.
+        int MOUSEX = e.getX();
+        int MOUSEY = y-e.getY();
+        for (BlockClump bc : blockData) {
+            Rectangle bounds = new Rectangle((int)(bc.x+x),(int)(bc.y+y),width*block_width,bc.maxBlockHeight*block_height);
+            if (bounds.contains(MOUSEX,MOUSEY)) {
+                System.out.println("Clicked inside clump "+bc);
+                break;
+            } else {
+                System.out.println("Off by "+(bc.x+x-MOUSEX)+","+(bc.y+y-MOUSEY));
+            }
+        }
+    }
+    public void mouseReleased(MouseEvent e) {
+        //System.out.println("Released: "+e.getPoint());
+    }
+    public void mouseEntered(MouseEvent e) {
+        //System.out.println("Entered: "+e.getPoint());
+    }
+    public void mouseExited(MouseEvent e) {
+        //System.out.println("Exited: "+e.getPoint());
     }
 }

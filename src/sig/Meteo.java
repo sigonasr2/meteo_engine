@@ -4,7 +4,10 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
-public class Meteo {
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+public class Meteo implements MouseListener{
     public final static int SCREEN_WIDTH=640;
     public final static int SCREEN_HEIGHT=640;
     public static long FRAMECOUNT=0;
@@ -22,12 +25,11 @@ public class Meteo {
         b.run(FRAMECOUNT);
     }
 
-    public static void main(String[] args) {        	
+    Meteo(JFrame f) {
         r = new Random(437210983125739812l);
         double[] val = {0,0,};
         b = new Board(SCREEN_WIDTH/2,SCREEN_HEIGHT/2,24,24,8,14,-0.065,5,4,-2,val);
 
-        JFrame f = new JFrame("Meteo Engine");
         Panel p = new Panel();
 
         new Thread() {
@@ -57,9 +59,40 @@ public class Meteo {
             }
         }.start();
 
+        f.addMouseListener(this);
         f.add(p);
         f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        JFrame f = new JFrame("Meteo Engine");        	
+        new Meteo(f);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        b.mouseClicked(e);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        b.mousePressed(e);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        b.mouseReleased(e);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        b.mouseEntered(e);
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        b.mouseExited(e);
     }
 }
