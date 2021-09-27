@@ -103,11 +103,17 @@ public class Board {
 			for (int[] range : blocks.collisionColumnRanges) {
 				if (range[1]*block_height+blocks.y>block_height*height) {
 					List<Block> removedBlocks = blocks.getBlocks().stream().filter((block)->block.y*block_height+blocks.y>block_height*height).collect(Collectors.toList());
-					blocks.removeBlock(removedBlocks.toArray(new Block[removedBlocks.size()]));
+                    RemoveBlocks(blocks,removedBlocks.toArray(new Block[removedBlocks.size()]));
 				}
 			}
     	}
 	}
+    private void RemoveBlocks(BlockClump bc,Block...blocks) {
+        bc.removeBlock(blocks);
+        if (bc.getBlocks().size()==0) {
+            blockClumpDeleteList.add(bc);
+        }
+    }
 	private void MergeAllGroundedClumps() {
         List<BlockClump> groundedClumps = blockData.stream().filter((cl)->cl.y==0).collect(Collectors.toList());
         if (groundedClumps.size()>1) {
@@ -144,7 +150,7 @@ public class Board {
                 minY=Math.min(minY,b.y);
             }
             //For now just get rid of them.
-            blocks.removeBlock(newClumpBlocks.toArray(new Block[newClumpBlocks.size()]));
+            RemoveBlocks(blocks,newClumpBlocks.toArray(new Block[newClumpBlocks.size()]));
             for (Block b : newClumpBlocks) {
                 b.y-=minY;
             }
