@@ -24,7 +24,7 @@ public class Board {
     int attack_counter=0;
 
     BlockClump clumpClickId;
-    Block clickBlockX;
+    Block clickBlock;
 
     final static BlockState[] STARTINGSTATES = {BlockState.BLUE,
         BlockState.GREEN,
@@ -252,7 +252,7 @@ public class Board {
         final int DRAW_ENDX = (int)(x + block_width*((double)width/2));
 
         for (BlockClump bc : blockData) {
-            bc.drawBlocks(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height);
+            bc.drawBlocks(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height,clickBlock);
         }
         g.setColor(Color.BLACK);
         g.fillRoundRect(DRAW_STARTX, DRAW_STARTY+block_height, DRAW_ENDX-DRAW_STARTX, 3, 3, 1);
@@ -268,15 +268,16 @@ public class Board {
     public void mousePressed(MouseEvent e) {
         //System.out.println("Pressed: "+e.getPoint());
         //Adjust Y coordinate based on where the board is positioned.
-        int MOUSEX = e.getX();
-        int MOUSEY = y-e.getY();
+        clickBlock=null;
+        clumpClickId=null;
+        outer:
         for (BlockClump bc : blockData) {
-            Rectangle bounds = new Rectangle((int)(bc.x+x),(int)(bc.y+y),width*block_width,bc.maxBlockHeight*block_height);
-            if (bounds.contains(MOUSEX,MOUSEY)) {
-                System.out.println("Clicked inside clump "+bc);
-                break;
-            } else {
-                System.out.println("Off by "+(bc.x+x-MOUSEX)+","+(bc.y+y-MOUSEY));
+            for (Block b : bc.getBlocks()) {
+                if (new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
+                    clickBlock=b;
+                    clumpClickId=bc;
+                    break outer;
+                }
             }
         }
     }

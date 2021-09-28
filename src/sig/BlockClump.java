@@ -54,9 +54,9 @@ public class BlockClump {
         }
         updateBlockCollision();
     }
-    public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height) {
+    public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height, Block selectedBlock) {
         for (Block b : blocks) {
-            b.draw(g,originX+x,originY-y,block_width,block_height,launched);
+            b.draw(g,originX+x,originY-y,block_width,block_height,launched,selectedBlock!=null&&selectedBlock.equals(b));
             if (Meteo.DEBUG_DRAWING==DebugMode.MODE2) {
                 g.setColor(Color.BLACK);
                 g.drawString(Integer.toString(maxBlockHeight),(int)x+b.x*block_width+originX+4,(int)-y-b.y*block_height+originY+16);
