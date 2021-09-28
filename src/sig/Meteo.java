@@ -59,7 +59,7 @@ public class Meteo implements MouseListener{
             }
         }.start();
 
-        f.addMouseListener(this);
+        f.getContentPane().addMouseListener(this);
         f.add(p);
         f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
