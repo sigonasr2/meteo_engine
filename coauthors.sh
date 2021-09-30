@@ -10,7 +10,7 @@ cat <<-EOF > ~/.git-coauthors
 }
 EOF
 git mob sig 
-cat <<-EOF > ./git/hooks/prepare-commit-msg
+cat <<-EOF > .git/hooks/prepare-commit-msg
 #!/usr/bin/env node
 let exec = require('child_process').exec,
     fs = require('fs');
