@@ -270,51 +270,59 @@ public class Board {
             g.drawString(Integer.toString(blockData.size()),4,Meteo.SCREEN_HEIGHT-20);
         }
     }
-    public void mouseClicked(MouseEvent e) {
-        //System.out.println("Clicked: "+e.getPoint());
-    }
-    public void mousePressed(MouseEvent e) {
-        //System.out.println("Pressed: "+e.getPoint());
-        //Adjust Y coordinate based on where the board is positioned.
-        clickBlock=null;
-        clumpClickId=null;
-        outer:
-        for (int i=0;i<blockData.size();i++) {
-            BlockClump bc = blockData.get(i);
-            for (int j=0;j<bc.getBlocks().size();j++) {
-                Block b = bc.getBlocks().get(j);
-                if (new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
-                    clickBlock=b;
-                    clumpClickId=bc;
-                    break outer;
+    public void handleMouse(MouseQueue mq) {
+        MouseEvent e = mq.ev;
+        switch (mq.type) {
+            case CLICK:
+                //System.out.println("Clicked: "+e.getPoint());
+                break;
+            case DRAG:
+                //System.out.println("Dragged: "+e.getPoint());
+                if (clumpClickId!=null&&clickBlock!=null) {
+                    List<Block> adjacentBlocks = clumpClickId.getBlocks().stream().filter((block)->Math.abs(clickBlock.y-block.y)==1&&clickBlock.x==block.x).collect(Collectors.toList());
+                    for (Block b : adjacentBlocks) {
+                        if (new Rectangle(0,b.draw_y,Meteo.SCREEN_WIDTH,block_height).contains(e.getPoint())) {
+                            int newY = b.y;
+                            b.y=clickBlock.y;
+                            clickBlock.y = newY;
+                            break;
+                        }
+                    }
                 }
-            }
-        }
-    }
-    public void mouseReleased(MouseEvent e) {
-        //System.out.println("Released: "+e.getPoint());
-    }
-    public void mouseEntered(MouseEvent e) {
-        //System.out.println("Entered: "+e.getPoint());
-    }
-    public void mouseExited(MouseEvent e) {
-        //System.out.println("Exited: "+e.getPoint());
-    }
-    public void mouseDragged(MouseEvent e) {
-        //System.out.println("Dragged: "+e.getPoint());
-        if (clumpClickId!=null&&clickBlock!=null) {
-            List<Block> adjacentBlocks = clumpClickId.getBlocks().stream().filter((block)->Math.abs(clickBlock.y-block.y)==1).collect(Collectors.toList());
-            for (Block b : adjacentBlocks) {
-                if (new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
-                    int oldY = clickBlock.y;
-                    clickBlock.y = b.y;
-                    b.y=oldY;
-                    break;
+                break;
+            case ENTER:
+                //System.out.println("Entered: "+e.getPoint());
+                break;
+            case EXIT:
+                //System.out.println("Exited: "+e.getPoint());
+                break;
+            case MOVE:
+                //System.out.println("Moved: "+e.getPoint());
+                break;
+            case PRESS:
+                //System.out.println("Pressed: "+e.getPoint());
+                //Adjust Y coordinate based on where the board is positioned.
+                clickBlock=null;
+                clumpClickId=null;
+                outer:
+                for (int i=0;i<blockData.size();i++) {
+                    BlockClump bc = blockData.get(i);
+                    for (int j=0;j<bc.getBlocks().size();j++) {
+                        Block b = bc.getBlocks().get(j);
+                        if (new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
+                            clickBlock=b;
+                            clumpClickId=bc;
+                            break outer;
+                        }
+                    }
                 }
-            }
+                break;
+            case RELEASE:
+                //System.out.println("Released: "+e.getPoint());
+                break;
+            default:
+                break;
+
         }
-    }
-    public void mouseMoved(MouseEvent e) {
-        //System.out.println("Moved: "+e.getPoint());
     }
 }

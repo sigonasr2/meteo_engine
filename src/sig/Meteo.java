@@ -1,6 +1,8 @@
 package sig;
 
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
@@ -21,8 +23,15 @@ public class Meteo implements MouseListener,MouseMotionListener{
     public final static long TIMEPERTICK = 16666667l;
     public static DebugMode DEBUG_DRAWING = DebugMode.MODE2;
 
+    public static List<MouseQueue> MOUSE_QUEUE = new ArrayList<MouseQueue>();
+
     public static void runGameLoop() {
         FRAMECOUNT++;
+        for (int i=0;i<MOUSE_QUEUE.size();i++) {
+            MouseQueue mq = MOUSE_QUEUE.get(i);
+            b.handleMouse(mq);
+        }
+        MOUSE_QUEUE.clear();
         b.run(FRAMECOUNT);
     }
 
@@ -75,36 +84,36 @@ public class Meteo implements MouseListener,MouseMotionListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        b.mouseClicked(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.CLICK,e));
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        b.mousePressed(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.PRESS,e));
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        b.mouseReleased(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.RELEASE,e));
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        b.mouseEntered(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.ENTER,e));
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        b.mouseExited(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.EXIT,e));
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        b.mouseDragged(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.DRAG,e));
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        b.mouseMoved(e);
+        MOUSE_QUEUE.add(new MouseQueue(MouseEventType.MOVE,e));
     }
 }
