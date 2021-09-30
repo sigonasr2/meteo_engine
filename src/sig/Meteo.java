@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseListener; 
 import java.awt.event.MouseMotionListener; 
 
 public class Meteo implements MouseListener,MouseMotionListener{

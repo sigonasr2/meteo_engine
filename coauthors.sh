@@ -9,4 +9,4 @@ cat <<-EOF > ~/.git-coauthors
   }
 }
 EOF
-git mob sig
+git mob sig 
