@@ -23,7 +23,7 @@ public class BlockClump {
             collisionColumnRanges[i] = new int[]{-1,-1};
         }
 
-        addBlock(blockList.toArray(new Block[blockList.size()]));
+        addBlock(null,blockList.toArray(new Block[blockList.size()]));
         this.x=x;
         this.y=y;
         this.yspd=startspd;
@@ -40,19 +40,38 @@ public class BlockClump {
         }
         for (Block b : blocks) {updateBlockCollisionRangeWithBlock(b);}
     }
-    public void addBlock(Block...blocks) {
-        //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
-        for (Block b : blocks) 
-        {
-            this.blocks.add(b);
-            updateBlockCollisionRangeWithBlock(b);
+    public void addBlock(List<BlockRequest> requestList,Block...blocks) {
+        for (Block b : blocks) {
+            if (requestList==null) {
+                //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
+                this.blocks.add(b);
+                updateBlockCollisionRangeWithBlock(b);
+            } else {
+                requestList.add(new BlockAddRequest(this,b));
+            }
         }
     }
-    public void removeBlock(Block...blocks) {
+    public void removeBlock(List<BlockRequest> requestList,Block...blocks) {
         for (Block b : blocks) {
-            this.blocks.remove(b);
+            if (requestList==null) {
+                //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
+                this.blocks.remove(b);
+                updateBlockCollision();
+            } else {
+                requestList.add(new BlockDeleteRequest(this,b));
+            }
         }
-        updateBlockCollision();
+    }
+    public void Block(List<BlockRequest> requestList,Block...blocks) {
+        for (Block b : blocks) {
+            if (requestList==null) {
+                //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
+                this.blocks.add(b);
+                updateBlockCollisionRangeWithBlock(b);
+            } else {
+                requestList.add(new BlockAddRequest(this,b));
+            }
+        }
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height, Block selectedBlock) {
         for (Block b : blocks) {

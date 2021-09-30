@@ -6,8 +6,9 @@ import javax.swing.JFrame;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
-public class Meteo implements MouseListener{
+public class Meteo implements MouseListener,MouseMotionListener{
     public final static int SCREEN_WIDTH=640;
     public final static int SCREEN_HEIGHT=640;
     public static long FRAMECOUNT=0;
@@ -60,6 +61,7 @@ public class Meteo implements MouseListener{
         }.start();
 
         f.getContentPane().addMouseListener(this);
+        f.getContentPane().addMouseMotionListener(this);
         f.add(p);
         f.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -94,5 +96,15 @@ public class Meteo implements MouseListener{
     @Override
     public void mouseExited(MouseEvent e) {
         b.mouseExited(e);
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        b.mouseDragged(e);
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        b.mouseMoved(e);
     }
 }

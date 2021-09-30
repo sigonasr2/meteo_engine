@@ -22,6 +22,7 @@ public class Board {
     int block_width,block_height;
     double vspeed;
     int attack_counter=0;
+    boolean iterationLocked=false;
 
     BlockClump clumpClickId;
     Block clickBlock;
@@ -36,6 +37,7 @@ public class Board {
 	
 	List<BlockClump> blockClumpDeleteList = new ArrayList<BlockClump>();
 	List<BlockClump> blockClumpAddList = new ArrayList<BlockClump>();
+    List<BlockRequest> blockRequestList = new ArrayList<BlockRequest>();
 	
     public Board(int centerX,int centerY,int block_width,int block_height,int boardWidth, int boardHeight, double gravity, double launch_power, double max_rise_spd, double max_fall_spd,
             double[] combo_power_bonus) {
@@ -95,14 +97,27 @@ public class Board {
 	        //System.out.println(blocks.y);
         }
         MergeAllGroundedClumps();
-    	if (blockClumpDeleteList.size()>0) {
-    		blockData.removeAll(blockClumpDeleteList);
-    		blockClumpDeleteList.clear();
-    	}
-    	if (blockClumpAddList.size()>0) {
-    		blockData.addAll(blockClumpAddList);
-    		blockClumpAddList.clear();
-    	}
+        if (!iterationLocked) {
+            if (blockClumpDeleteList.size()>0) {
+                blockData.removeAll(blockClumpDeleteList);
+                blockClumpDeleteList.clear();
+            }
+            if (blockClumpAddList.size()>0) {
+                blockData.addAll(blockClumpAddList);
+                blockClumpAddList.clear();
+            }
+            if (blockRequestList.size()>0) {
+                for (BlockRequest addReq:blockRequestList.stream().filter((request)->request instanceof BlockAddRequest).collect(Collectors.toList())) {
+                    addReq.bc.addBlock(null,addReq.b);
+                }
+                for (BlockRequest removeReq:blockRequestList.stream().filter((request)->request instanceof BlockDeleteRequest).collect(Collectors.toList())) {
+                    removeReq.bc.removeBlock(null,removeReq.b);
+                }
+                blockRequestList.clear();
+            }
+        } else {
+            System.out.println("Lock was requested so update could not be performed.");
+        }
     }
     private void DestroyOutsideBlocks(BlockClump blocks) {
     	if (blocks.yspd>0) {
@@ -115,7 +130,7 @@ public class Board {
     	}
 	}
     private void RemoveBlocks(BlockClump bc,Block...blocks) {
-        bc.removeBlock(blocks);
+        bc.removeBlock(blockRequestList,blocks);
         if (bc.getBlocks().size()==0) {
             blockClumpDeleteList.add(bc);
         }
@@ -125,7 +140,7 @@ public class Board {
         if (groundedClumps.size()>1) {
             BlockClump base = groundedClumps.remove(0);
             for (BlockClump bc : groundedClumps) {
-                base.addBlock(bc.getBlocks().toArray(new Block[bc.getBlocks().size()]));
+                base.addBlock(blockRequestList,bc.getBlocks().toArray(new Block[bc.getBlocks().size()]));
             }
             blockClumpDeleteList.addAll(groundedClumps);
         }
@@ -212,7 +227,7 @@ public class Board {
 	private void CombineAToB(BlockClump A, BlockClump B) {
         for (Block b : A.getBlocks()) { 
             b.y = B.collisionColumnRanges[b.x][1]+1;
-            B.addBlock(b);
+            B.addBlock(blockRequestList,b);
         }
         blockClumpDeleteList.add(A);
     }
@@ -251,12 +266,14 @@ public class Board {
         final int DRAW_STARTY = (int)(y + block_height*((double)height/2));
         final int DRAW_ENDX = (int)(x + block_width*((double)width/2));
 
+        iterationLocked=true;
         for (BlockClump bc : blockData) {
             bc.drawBlocks(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height,clickBlock);
         }
         g.setColor(Color.BLACK);
         g.fillRoundRect(DRAW_STARTX, DRAW_STARTY+block_height, DRAW_ENDX-DRAW_STARTX, 3, 3, 1);
         BlockClump.drawDebugBlockClumps(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height,blockData);
+        iterationLocked=false;
         if (Meteo.DEBUG_DRAWING!=DebugMode.OFF) {
             g.setColor(Color.BLACK);
             g.drawString(Integer.toString(blockData.size()),4,Meteo.SCREEN_HEIGHT-20);
@@ -270,6 +287,7 @@ public class Board {
         //Adjust Y coordinate based on where the board is positioned.
         clickBlock=null;
         clumpClickId=null;
+        iterationLocked=true;
         outer:
         for (BlockClump bc : blockData) {
             for (Block b : bc.getBlocks()) {
@@ -280,14 +298,38 @@ public class Board {
                 }
             }
         }
+        iterationLocked=false;
     }
     public void mouseReleased(MouseEvent e) {
         //System.out.println("Released: "+e.getPoint());
+        clickBlock=null;
+        clumpClickId=null;
     }
     public void mouseEntered(MouseEvent e) {
         //System.out.println("Entered: "+e.getPoint());
     }
     public void mouseExited(MouseEvent e) {
         //System.out.println("Exited: "+e.getPoint());
+        clickBlock=null;
+        clumpClickId=null;
+    }
+    public void mouseDragged(MouseEvent e) {
+        //System.out.println("Dragged: "+e.getPoint());
+        if (clickBlock!=null&&clumpClickId!=null) {
+            iterationLocked=true;
+            for (Block b : clumpClickId.getBlocks()) {
+                if (Math.abs(b.y-clickBlock.y)==1&&new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
+                    //Swap the positions of these two blocks.
+                    int oldY = clickBlock.y;
+                    clickBlock.y=b.y;
+                    b.y=oldY;
+                    break;
+                }
+            }
+            iterationLocked=false;
+        }
+    }
+    public void mouseMoved(MouseEvent e) {
+        //System.out.println("Moved: "+e.getPoint());
     }
 }
