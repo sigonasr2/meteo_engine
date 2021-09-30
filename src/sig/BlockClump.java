@@ -38,7 +38,10 @@ public class BlockClump {
         for (int i=0;i<collisionColumnRanges.length;i++) {
             collisionColumnRanges[i] = new int[]{-1,-1};
         }
-        for (Block b : blocks) {updateBlockCollisionRangeWithBlock(b);}
+        for (int i=0;i<blocks.size();i++) {
+            Block b = blocks.get(i);
+            updateBlockCollisionRangeWithBlock(b);
+        }
     }
     public void addBlock(Block...blocks) {
         //Adds the block to the strucutre. Update collision column ranges to reflect the new bounds.
@@ -55,7 +58,8 @@ public class BlockClump {
         updateBlockCollision();
     }
     public void drawBlocks(Graphics g, int originX, int originY, int block_width, int block_height, Block selectedBlock) {
-        for (Block b : blocks) {
+        for (int i=0;i<blocks.size();i++) {
+            Block b = blocks.get(i);
             b.draw(g,originX+x,originY-y,block_width,block_height,launched,selectedBlock!=null&&selectedBlock.equals(b));
             if (Meteo.DEBUG_DRAWING==DebugMode.MODE2) {
                 g.setColor(Color.BLACK);
@@ -105,10 +109,12 @@ public class BlockClump {
         return "BlockClump [blocks=" + blocks + ", x=" + x + ", y=" + y + ", yspd=" + yspd + "]";
     }
     public static void drawDebugBlockClumps(Graphics g, int originX, int originY, int block_width, int block_height, List<BlockClump> blockData) {
-        for (BlockClump bc : blockData) {
+        for (int i=0;i<blockData.size();i++) {
+            BlockClump bc = blockData.get(i);
             bc.drawClumpOutlines(g,originX,originY,block_width,block_height);
         }
-        for (BlockClump bc : blockData) {
+        for (int i=0;i<blockData.size();i++) {
+            BlockClump bc = blockData.get(i);
             bc.drawClumpDots(g,originX,originY,block_width,block_height);
         }
     }

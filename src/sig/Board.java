@@ -58,13 +58,15 @@ public class Board {
     	}
 
         outerloop:
-        for (BlockClump blocks : blockData) {
+        for (int i=0;i<blockData.size();i++) {
+            BlockClump blocks = blockData.get(i);
         	DestroyOutsideBlocks(blocks);
             if (checkForMatches(blocks)) {continue;}
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
         	for (int x=0;x<width;x++) {
         		if (blocks.collisionColumnRanges[x][0]!=-1) {
-        			for (BlockClump blocks2 : blockData) {
+        			for (int j=0;j<blockData.size();j++) {
+                        BlockClump blocks2 = blockData.get(j);
         				if (!blocks.equals(blocks2)&&blocks2.collisionColumnRanges[x][1]!=-1) {
         					if (FUTURE_FALL_POSITION<blocks2.y) {
 	        					if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][1]*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height) {
@@ -124,7 +126,8 @@ public class Board {
         List<BlockClump> groundedClumps = blockData.stream().filter((cl)->cl.y==0).collect(Collectors.toList());
         if (groundedClumps.size()>1) {
             BlockClump base = groundedClumps.remove(0);
-            for (BlockClump bc : groundedClumps) {
+            for (int i=0;i<groundedClumps.size();i++) {
+                BlockClump bc = groundedClumps.get(i);
                 base.addBlock(bc.getBlocks().toArray(new Block[bc.getBlocks().size()]));
             }
             blockClumpDeleteList.addAll(groundedClumps);
@@ -149,7 +152,8 @@ public class Board {
             int minY=Integer.MAX_VALUE;
             List<Block> newClumpBlocks = new ArrayList<Block>();
             newClumpBlocks.addAll(markedBlocks);
-            for (Block b : markedBlocks) {
+            for (int i=0;i<markedBlocks.size();i++) {
+                Block b = markedBlocks.get(i);
                 b.state = BlockState.IGNITED;
                 //All blocks above marked blocks now join the clump.
                 newClumpBlocks.addAll(blocks.getSortedBlocksOnCol(b.x).stream().filter((block)->!newClumpBlocks.contains(block)&&block.y>b.y).collect(Collectors.toList()));
@@ -157,7 +161,8 @@ public class Board {
             }
             //For now just get rid of them.
             RemoveBlocks(blocks,newClumpBlocks.toArray(new Block[newClumpBlocks.size()]));
-            for (Block b : newClumpBlocks) {
+            for (int i=0;i<newClumpBlocks.size();i++) {
+                Block b = newClumpBlocks.get(i);
                 b.y-=minY;
             }
             blockClumpAddList.add(
@@ -210,7 +215,8 @@ public class Board {
         return markedBlocks;
     }
 	private void CombineAToB(BlockClump A, BlockClump B) {
-        for (Block b : A.getBlocks()) { 
+        for (int i=0;i<A.getBlocks().size();i++) { 
+            Block b = A.getBlocks().get(i);
             b.y = B.collisionColumnRanges[b.x][1]+1;
             B.addBlock(b);
         }
@@ -226,7 +232,8 @@ public class Board {
             SplitBlockClump(blocks);
         }
         if (blocks.launched<=0) {
-            for (Block b : blocks.getBlocks()) {
+            for (int i=0;i<blocks.getBlocks().size();i++) {
+                Block b = blocks.getBlocks().get(i);
                 if (b.state==BlockState.IGNITED) {
                     b.state=STARTINGSTATES[(int)(Meteo.r.nextInt(3))];
                 }
@@ -251,7 +258,8 @@ public class Board {
         final int DRAW_STARTY = (int)(y + block_height*((double)height/2));
         final int DRAW_ENDX = (int)(x + block_width*((double)width/2));
 
-        for (BlockClump bc : blockData) {
+        for (int i=0;i<blockData.size();i++) {
+            BlockClump bc = blockData.get(i);
             bc.drawBlocks(g,DRAW_STARTX,DRAW_STARTY,block_width,block_height,clickBlock);
         }
         g.setColor(Color.BLACK);
@@ -271,8 +279,10 @@ public class Board {
         clickBlock=null;
         clumpClickId=null;
         outer:
-        for (BlockClump bc : blockData) {
-            for (Block b : bc.getBlocks()) {
+        for (int i=0;i<blockData.size();i++) {
+            BlockClump bc = blockData.get(i);
+            for (int j=0;j<bc.getBlocks().size();j++) {
+                Block b = bc.getBlocks().get(j);
                 if (new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
                     clickBlock=b;
                     clumpClickId=bc;
