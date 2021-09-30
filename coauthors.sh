@@ -41,5 +41,5 @@ if(/COMMIT_EDITMSG/g.test(commitMessage)){
     });
 }
 EOF
-chmod +x ./git/hooks/prepare-commit-msg
+chmod +x .git/hooks/prepare-commit-msg
 echo "Environment is setup!"
