@@ -300,4 +300,21 @@ public class Board {
     public void mouseExited(MouseEvent e) {
         //System.out.println("Exited: "+e.getPoint());
     }
+    public void mouseDragged(MouseEvent e) {
+        //System.out.println("Dragged: "+e.getPoint());
+        if (clumpClickId!=null&&clickBlock!=null) {
+            List<Block> adjacentBlocks = clumpClickId.getBlocks().stream().filter((block)->Math.abs(clickBlock.y-block.y)==1).collect(Collectors.toList());
+            for (Block b : adjacentBlocks) {
+                if (new Rectangle(b.draw_x,b.draw_y,block_width,block_height).contains(e.getPoint())) {
+                    int oldY = clickBlock.y;
+                    clickBlock.y = b.y;
+                    b.y=oldY;
+                    break;
+                }
+            }
+        }
+    }
+    public void mouseMoved(MouseEvent e) {
+        //System.out.println("Moved: "+e.getPoint());
+    }
 }
