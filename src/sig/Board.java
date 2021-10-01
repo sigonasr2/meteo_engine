@@ -79,6 +79,7 @@ public class Board {
                             if (blocks.yspd>0) {
                                 if (blocks2.y+(blocks2.collisionColumnRanges[x][0])*block_height>FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][1])*block_height) {
                                     if (FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][1])*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0])*block_height) {
+                                        CombineAToBFromBelow(blocks,blocks2);
                                         HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][0])*block_height-blocks.maxBlockHeight*block_height);
                                         continue outerloop;
                                     }
