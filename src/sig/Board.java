@@ -63,27 +63,44 @@ public class Board {
         	DestroyOutsideBlocks(blocks);
             if (checkForMatches(blocks)) {continue;}
         	double FUTURE_FALL_POSITION = blocks.y+blocks.yspd+gravity;
-        	for (int x=0;x<width;x++) {
+            List<CollisionRangeIdentifier> ranges = new ArrayList<CollisionRangeIdentifier>();
+            for (int k=0;k<blocks.collisionColumnRanges.length;k++) {
+                int[] range = blocks.collisionColumnRanges[k];
+                ranges.add(new CollisionRangeIdentifier(k, range));
+            }
+            ranges = ranges.stream().sorted((a,b)->a.range[0]-b.range[0]).collect(Collectors.toList());
+            //System.out.println(ranges);
+        	for (int l=0;l<ranges.size();l++) {
+                int x=ranges.get(l).index;
         		if (blocks.collisionColumnRanges[x][0]!=-1) {
         			for (int j=0;j<blockData.size();j++) {
                         BlockClump blocks2 = blockData.get(j);
         				if (!blocks.equals(blocks2)&&blocks2.collisionColumnRanges[x][1]!=-1) {
-        					if (FUTURE_FALL_POSITION<blocks2.y) {
-	        					if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][1]*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height) {
-	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][0]+1)*block_height);
-	        						continue outerloop;
-	        					}
-        					} else {
-        						if (FUTURE_FALL_POSITION+blocks.collisionColumnRanges[x][0]*block_height<blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height) {
-	        						HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height);
-                                    if (blocks.launched==-1) {
-                                        CombineAToB(blocks,blocks2);
-                                        blocks.launched=-2;
+                            if (blocks.yspd>0) {
+                                if (blocks2.y+(blocks2.collisionColumnRanges[x][0])*block_height>FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][1])*block_height) {
+                                    if (FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][1])*block_height>blocks2.y+(blocks2.collisionColumnRanges[x][0])*block_height) {
+                                        HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][0])*block_height-blocks.maxBlockHeight*block_height);
+                                        continue outerloop;
                                     }
-	        						continue outerloop;
-	        					}
-        					}
-        				}
+                                }
+                            } else {
+                                if (FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][0])*block_height<=0) { //Handle reaching the ground.
+                                    HandleBlockLand(blocks, x, 0);
+                                    continue outerloop;
+                                } else
+                                if (blocks2.y<FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][0])*block_height) {
+                                    if (FUTURE_FALL_POSITION+(blocks.collisionColumnRanges[x][0])*block_height<blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height) {
+                                        HandleBlockLand(blocks, x, blocks2.y+(blocks2.collisionColumnRanges[x][1]+1)*block_height);
+                                        System.out.println(ranges);
+                                        if (blocks.launched==-1) {
+                                            CombineAToB(blocks,blocks2);
+                                            blocks.launched=-2;
+                                        }
+                                        continue outerloop;
+                                    }
+                                }
+                            }
+                        }
         			}
         		}
         	}
@@ -166,7 +183,7 @@ public class Board {
                 b.y-=minY;
             }
             blockClumpAddList.add(
-                new BlockClump(newClumpBlocks, blocks.x, blocks.y+minY*block_height+4, launch_power, width, 120)
+                new BlockClump(newClumpBlocks, blocks.x, blocks.y+minY*block_height, launch_power, width, 120)
             );
         }
         return markedBlocks.size()>0;
